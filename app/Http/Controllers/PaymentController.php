@@ -8,6 +8,25 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $paymentmethod = Payment::all();
+
+        if ($request->wantsJson()) {
+        return response()->json([
+            'message' => 'List of payment',
+            'data' => $paymentmethod,
+        ], 200);
+
+      }
+      return view('admin.datapembayaran', compact('paymentmethod'));
+    }
+    public function insert()
+    {
+      $category=Payment::all();
+        return view('admin.tambahpembayaran', compact('category'));
+    }
     // Menyimpan pembayaran baru
     public function store(Request $request)
     {
@@ -32,11 +51,14 @@ class PaymentController extends Controller
             'category' => $request->category,
             'image' => $imagePath,
         ]);
-
+        if ($request->wantsJson()) {
         return response()->json([
             'message' => 'Payment created successfully',
             'data' => $payment,
         ], 201);
+
+    }
+    return redirect()->route('payment.index')->with('success', 'method payment created successfully!');
     }
 
     // Mengupdate data pembayaran

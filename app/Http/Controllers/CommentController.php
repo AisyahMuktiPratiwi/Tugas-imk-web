@@ -9,14 +9,17 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     // Menampilkan semua komentar
-    public function index()
+    public function index(Request $request)
     {
-        $comments = Comment::all();
 
+        $comments = Comment::all();
+        if ($request->wantsJson()) {
         return response()->json([
             'message' => 'List of comments',
             'data' => $comments,
         ], 200);
+    }
+    return view('admin.datakomen', compact('comments'));
     }
 
     // Menampilkan detail komentar berdasarkan ID
@@ -91,20 +94,26 @@ class CommentController extends Controller
     }
 
     // Menghapus komentar
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         $comment = Comment::find($id);
-
+    
         if (!$comment) {
-            return response()->json([
-                'message' => 'Comment not found',
-            ], 404);
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Comment not found'], 404);
+            }
+    
+            return redirect()->route('comment.index')->with('error', 'Comment not found');
         }
-
+    
         $comment->delete();
-
-        return response()->json([
-            'message' => 'Comment deleted successfully',
-        ], 200);
+    
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Comment deleted successfully'], 200);
+        }
+    
+        return redirect()->route('comment.index')->with('success', 'Comment deleted successfully');
     }
+    
+    
 }

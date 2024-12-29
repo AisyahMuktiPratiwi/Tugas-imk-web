@@ -17,10 +17,11 @@ Route::get('/areas', [AreaController::class, 'index']);
 Route::put('/areas/{id}', [AreaController::class, 'update']);
 Route::delete('/areas/{id}', [AreaController::class, 'destroy']);
 
-Route::get('/resevations', [ReservationController::class, 'index']);
-Route::get('/reservations/{id}', [ReservationController::class, 'show']);
-Route::post('/reservations', [ReservationController::class, 'store']);
-
+Route::prefix('reservations')->group(function () {
+Route::get('/', [ReservationController::class, 'index']);
+Route::get('/{id}', [ReservationController::class, 'show']);
+Route::post('/', [ReservationController::class, 'store']);
+});
 
   Route::get('/payments', [PaymentController::class, 'index']); //
     Route::get('/payments{id}', [PaymentController::class, 'show']);

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('category');
             $table->string('image')->nullable();
+           
+
             $table->timestamps();
         });
     }

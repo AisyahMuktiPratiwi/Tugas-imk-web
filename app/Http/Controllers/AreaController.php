@@ -11,29 +11,33 @@ use Illuminate\Support\Facades\Storage;
 class AreaController extends Controller
 {
       
-    public function index()
+    public function index(request $request)
     {
-        try {
-           
             $areas = Area::all();
-      
+            if ($request->wantsJson()) {
             return response()->json([
                 'message' => 'Areas fetched successfully',
                 'data' => $areas
             ], 200);
-        } catch (\Exception $e) {
           
-            return response()->json([
-                'message' => 'Failed to fetch areas',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+         
+         }
+        return view('admin.dataarea', compact('areas'));
     }
-
+    public function edit($id)
+      {
+        $area = Area::find($id);
+          return view('admin.editarea', compact('area'));
+      }
+    public function insert()
+    {
+      
+        return view('admin.tambaharea');
+    }
   
     public function store(Request $request)
     {
-        try {
+
            
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -54,24 +58,25 @@ class AreaController extends Controller
                 'price' => $request->price,
                 'image' => $imagePath,
             ]);
-
+            if ($request->wantsJson()) {
             return response()->json([
                 'message' => 'Area created successfully',
                 'data' => $area
             ], 201); 
-        } catch (ValidationException $e) {
-       
+        
+            
             return response()->json([
                 'message' => 'Validation error',
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
+    
        
             return response()->json([
                 'message' => 'Failed to create area',
                 'error' => $e->getMessage()
             ], 500);
         }
+        return redirect()->route('area.index')->with('success', 'Area created successfully!');
     }
 
     public function show($id)
@@ -90,6 +95,8 @@ class AreaController extends Controller
                 'error' => $e->getMessage()
             ], 404);
         }
+
+        
     }
 
     // Mengupdate area
@@ -97,63 +104,80 @@ class AreaController extends Controller
     {
         try {
             $area = Area::findOrFail($id);
-
+    
+            // Validasi input
             $request->validate([
                 'name' => 'sometimes|required|string|max:255',
                 'description' => 'sometimes|required|string',
                 'price' => 'sometimes|required|numeric',
                 'image' => 'nullable|image|max:2048',
             ]);
-
+    
+            // Proses gambar jika ada file baru
             if ($request->hasFile('image')) {
                 // Hapus gambar lama jika ada
                 if ($area->image) {
                     Storage::disk('public')->delete($area->image);
                 }
-
+    
+                // Simpan gambar baru
                 $imagePath = $request->file('image')->store('areas', 'public');
                 $area->image = $imagePath;
             }
-
-       
-            $area->update($request->only(['name', 'description', 'price', 'image']));
-
     
-            return response()->json([
+            // Update data area, kecuali gambar jika tidak diunggah
+            $updateData = $request->only(['name', 'description', 'price']);
+            if (isset($imagePath)) {
+                $updateData['image'] = $imagePath;
+            }
+    
+            $area->update($updateData);
+    
+            $successResponse = [
                 'message' => 'Area updated successfully',
                 'data' => $area
-            ], 200); 
+            ];
+    
+            // Respons berdasarkan tipe permintaan
+            if ($request->wantsJson()) {
+                return response()->json($successResponse, 200);
+            }
+    
+            return redirect()->route('area.index')->with('success', $successResponse['message']);
         } catch (\Exception $e) {
-          
-            return response()->json([
+            $errorResponse = [
                 'message' => 'Failed to update area',
                 'error' => $e->getMessage()
-            ], 500); 
+            ];
+    
+            if ($request->wantsJson()) {
+                return response()->json($errorResponse, 500);
+            }
+    
+            return redirect()->back()->withErrors(['error' => $errorResponse['message']]);
         }
     }
+    
 
     // Menghapus area
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        try {
-            $area = Area::findOrFail($id);
-
-            if ($area->image) {
-                Storage::disk('public')->delete($area->image);
+        $area = Area::find($id);
+    
+        if (!$area) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Area not found'], 404);
             }
-
-            $area->delete();
-
-        
-            return response()->json([
-                'message' => 'Area deleted successfully'
-            ], 200); 
-        } catch (\Exception $e) {
-            
-            return response()->json([
-                'message' => 'Failed to delete area',
-                'error' => $e->getMessage()
-            ], 500); 
+    
+            return redirect()->route('area.index')->with('error', 'area$area not found');
         }
+    
+        $area->delete();
+    
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Area deleted successfully'], 200);
+        }
+    
+        return redirect()->route('area.index')->with('success', 'Area deleted successfully');
     }
 }
