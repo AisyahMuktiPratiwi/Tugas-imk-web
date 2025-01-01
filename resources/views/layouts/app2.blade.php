@@ -15,12 +15,10 @@
         rel="stylesheet">
 </head>
 
-<body>
-    @include('layouts.header')
+<body class="bg-black text-white font-sans">
     <main>
         @yield('content')
     </main>
-    @include('layouts.footer')
 
     <script src="{{ asset('js/app.js') }}"></script>
     @yield('script')
