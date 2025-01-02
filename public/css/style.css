@@ -1,0 +1,34 @@
+.carousel-container {
+  position: relative;
+  overflow-x: hidden;
+  width: calc(3 * 395px);
+}
+
+.carousel-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.carousel {
+  display: flex;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  flex-wrap: nowrap;
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+  margin-bottom: 20px;
+}
+
+.card {
+  flex-shrink: 0;
+  margin-right: 20px; /* Margin antar card */
+}
+
+.card img {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}

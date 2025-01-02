@@ -10,19 +10,22 @@ use App\Models\Area;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function () {return view('home');})->name('home');
+Route::get('/menu', function () {return view('menu');})->name('menu');
+Route::get('/photos', function () {return view('photos');})->name('photos');
+Route::get('/team', function () {return view('team');})->name('team');
+Route::get('/reservation', function () {return view('reservation');})->name('reservation');
+Route::get('/reservation-order', function () {return view('reservation-order');})->name('order');
 
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-   
+
     Route::get('/menus', [MenuController::class, 'index'])->name('menu.index');
-   
+
     Route::get('/menus/insert', [MenuController::class, 'insert'])->name('menu.insert');
     Route::post('/menus', [MenuController::class, 'store'])->name('menu.store');
     Route::put('/menus/{id}', [MenuController::class, 'update'])->name('menu.update');
-    
+
     Route::get('/menus/{id}', [MenuController::class, 'edit'])->name('menu.edit');
     Route::delete('/menus/delete/{id}', [MenuController::class, 'destroy'])->name('menu.delete');
 
@@ -45,7 +48,7 @@ Route::get('/payments{id}', [PaymentController::class, 'show']);
 Route::get('/payments/insert', [PaymentController::class, 'insert']);
 Route::post('/payments', [PaymentController::class, 'store'])->name('payment.store');
 Route::put('{/payments/{id}', [PaymentController::class, 'update']);
-Route::delete('/payments/{id}', [PaymentController::class, 'destroy']); 
+Route::delete('/payments/{id}', [PaymentController::class, 'destroy']);
 
 Route::get('/reservations', [ReservationController::class, 'index'])->name('reservasi.index');
 Route::get('/reservations/customer/{id}', [ReservationController::class, 'customer'])->name('reservations.detail');
